@@ -40,11 +40,10 @@ def get_smallest_bar(bars_json):
 
 def pretty_print_attributes(text, bar):
     address = bar['properties']['Attributes']['Address']
-    name = bar['properties']['Attributes']['Name']
+    bar_name = bar['properties']['Attributes']['Name']
     seats_count = bar['properties']['Attributes']['SeatsCount']
-    line = '============================================================'
-    print('{},\n Адрес {},\nНазвание {},\nКоличество мест {}\n{}'.format(text, address, name,
-                                                                         seats_count, line))
+    print('{},\n Адрес {},\nНазвание {},\nКоличество мест {}\n{}'.format(text, address, bar_name,
+                                                                         seats_count, "=" * 80))
 
 
 if __name__ == '__main__':
