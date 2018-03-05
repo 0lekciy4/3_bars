@@ -9,15 +9,20 @@
 
 # Как запустить
 
-Скрипт требует для своей работы установленного интерпретатора Python
-версии 3.5 . Так-же необходимо установить зависимости из requirements.txt
-или установить geopy
+1. Скрипт требует для своей работы установленного интерпретатора Python
+версии 3.5 .
+2. Необходимо установить зависимости из requirements.txt
+или установить geopy и requests.
+3. Файл со списком баров необходимо скачть по ссылке https://data.mos.ru/opendata/7710881420-bary
+разархивировать и указать путь к json файлу в качестве аргумента при зпуске программы,
+если не указать путь то будет загружен список баров с https://devman.org/media/filer_public/95/74/957441dc-78df-4c99-83b2-e93dfd13c2fa/bars.json
 ```bash
 pip3 install -r requirements.txt
 ```
 или
 ```bash
 pip3 install geopy
+pip3 install requests
 ```
 
 
@@ -25,8 +30,8 @@ pip3 install geopy
 
 ```bash
 
-$ python bars.py # possibly requires call of python3 executive instead of just python
-Введите широту и долготу, разделив их ",". для примера:
+$ python bars.py <path_to_file>
+Введите широту и долготу. Для примера:
 55.754709, 37.618776
 55.754709, 37.618776
 Ближайший бар,
