@@ -5,15 +5,15 @@ from geopy.distance import great_circle
 
 
 def download_data(site):
-    site_date = requests.get(site)
-    data = site_date.json()
-    return data
+    geted_site = requests.get(site)
+    site_data = geted_site.json()
+    return site_data
 
 
 def load_data(file_path):
     with open(file_path, 'r', encoding='UTF-8') as json_file:
-        data = json.load(json_file)
-    return data
+        loaded_data = json.load(json_file)
+    return loaded_data
 
 
 def get_coordinates(bar):
@@ -56,14 +56,19 @@ def print_bar_attributes(text, bar):
     print(report_template.format(text, address, bar_name, seats_count, line))
 
 
+def open_bars():
+    if len(sys.argv) > 1:
+        file_path = sys.argv[1]
+        bars = load_data(file_path)['features']
+    else:
+        site = 'https://devman.org/media/filer_public/95/74/957441dc-78df-4c99-83b2-e93dfd13c2fa/bars.json'
+        bars = download_data(site)['features']
+    return bars
+
+
 if __name__ == '__main__':
     try:
-        if len(sys.argv) > 1:
-            file_path = sys.argv[1]
-            bars = load_data(file_path)['features']
-        else:
-            site = 'https://devman.org/media/filer_public/95/74/957441dc-78df-4c99-83b2-e93dfd13c2fa/bars.json'
-            bars = download_data(site)['features']
+        bars = open_bars()
         start_text = 'Введите широту и долготу. Для примера:\n55.754709, 37.618776\n'
         coordinates = input(start_text).split(', ')
         closest_bar = get_closest_bar(bars, coordinates)
