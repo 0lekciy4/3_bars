@@ -1,3 +1,6 @@
+#!/usr/local/bin/python
+# -*- coding: utf-8 -*-
+
 import json
 import requests
 import sys
@@ -17,7 +20,19 @@ def load_data(file_path):
 
 
 def get_coordinates(bar):
-    return bar['geometry']['coordinates']
+    return bar.get('geometry').get('coordinates')
+
+
+def get_name(bar):
+    return bar.get('properties').get('Attributes').get('Name')
+
+
+def get_address(bar):
+    return bar.get('properties').get('Attributes').get('Address')
+
+
+def get_seats_count(bar):
+    return bar.get('properties').get('Attributes').get('SeatsCount')
 
 
 def get_closest_bar(bars, my_coord):
@@ -27,61 +42,60 @@ def get_closest_bar(bars, my_coord):
     return closest_bar
 
 
-def get_seats_count(bar):
-    return bar['properties']['Attributes']['SeatsCount']
-
-
-def get_biggest_bar(bars):
-    biggest_bar = max(
+def get_bar_size(bars, compare_func):
+    bar_size = compare_func(
         bars,
         key=lambda bar: get_seats_count(bar)
     )
-    return biggest_bar
+    return bar_size
 
 
-def get_smallest_bar(bars):
-    smallest_bar = min(
-        bars,
-        key=lambda bar: get_seats_count(bar)
-    )
-    return smallest_bar
-
-
-def print_bar_attributes(text, bar):
-    line = '=' * 80
-    address = bar['properties']['Attributes']['Address']
-    bar_name = bar['properties']['Attributes']['Name']
-    seats_count = bar['properties']['Attributes']['SeatsCount']
-    report_template = '{},\n Адрес {},\nНазвание {},\nКоличество мест {}\n{}'
-    print(report_template.format(text, address, bar_name, seats_count, line))
+def print_line():
+    line = '=' * 120
+    print(line)
 
 
 def open_bars():
     if len(sys.argv) > 1:
         file_path = sys.argv[1]
-        bars = load_data(file_path)['features']
+        bars = load_data(file_path)
     else:
         site = 'https://devman.org/media/filer_public/95/74/957441dc-78df-4c99-83b2-e93dfd13c2fa/bars.json'
-        bars = download_data(site)['features']
+        bars = download_data(site)
     return bars
 
 
-if __name__ == '__main__':
+def get_user_coordinates():
+    start_text = 'Введите широту и долготу. Для примера:\n55.754709, 37.618776\n'
+    coordinates = input(start_text).split(', ')
+    return coordinates
+
+
+def main():
     try:
-        bars = open_bars()
-        start_text = 'Введите широту и долготу. Для примера:\n55.754709, 37.618776\n'
-        coordinates = input(start_text).split(', ')
-        closest_bar = get_closest_bar(bars, coordinates)
-        biggest_bar = get_biggest_bar(bars)
-        smallest_bar = get_smallest_bar(bars)
-        print_bar_attributes('Ближайший бар', closest_bar)
-        print_bar_attributes('Самый большой бар', biggest_bar)
-        print_bar_attributes('Самый маленький бар', smallest_bar)
-    except FileNotFoundError:
-        print('Неверно указан путь к файлу с барами. Запустите заново указав корректный путь к файлу')
-    except requests.exceptions.ConnectionError:
-        print('Нет соединение с интернетом. Запустите заново c указанием пути к файлу')
+        bars = open_bars().get('features')
+        coordinates = get_user_coordinates()
+        selected_bars = {
+            'Ближайший бар': get_closest_bar(bars, coordinates),
+            'Самый большой бар': get_bar_size(bars, max),
+            'Самый маленький бар': get_bar_size(bars, min)
+        }
+        for title, bar in selected_bars.items():
+            print_line()
+            print('{} - «{}» находится по адресу {} и там {} мест'.format(
+            title, get_name(bar), get_address(bar), get_seats_count(bar)
+        ))
     except json.decoder.JSONDecodeError:
         print('Битый JSON файл')
     except ValueError:
-        print('Запустите заново и введите корректные координаты. \nДля примера:55.754709, 37.618776\n')
+        print('Некоректно введены координаты')
+    except FileNotFoundError:
+        print('Некоректно указан путь к файлу')
+    except requests.exceptions.ConnectionError:
+        print('Отсутствует соединение с интернетом')
+
+
+
+
+if __name__ == '__main__':
+    main()
