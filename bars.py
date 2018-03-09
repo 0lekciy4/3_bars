@@ -73,7 +73,5 @@ if __name__ == '__main__':
         print('Битый JSON файл')
     except ValueError:
         print('Некоректно введены координаты')
-    except FileNotFoundError:
+    except (FileNotFoundError, IndexError):
         print('Некоректно указан путь к файлу')
-    except IndexError:
-        print('Не указан путь к файлу')
