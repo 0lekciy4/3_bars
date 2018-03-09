@@ -1,23 +1,12 @@
-#!/usr/local/bin/python
-# -*- coding: utf-8 -*-
-
 import json
-import requests
 import sys
 from geopy.distance import great_circle
 
 
-def download_data(site):
-    geted_site = requests.get(site)
-    site_data = geted_site.json()
-    return site_data
-
-
-
 def load_data(file_path):
     with open(file_path, 'r', encoding='UTF-8') as json_file:
-        loaded_data = json.load(json_file)
-    return loaded_data
+        loaded_json = json.load(json_file)
+    return loaded_json
 
 
 def get_coordinates(bar):
@@ -43,8 +32,7 @@ def get_closest_bar(bars, my_coord):
     return closest_bar
 
 
-
-def get_bar_size(bars, compare_func):
+def get_extremum_seats_count(bars, compare_func):
     bar_size = compare_func(
         bars,
         key=lambda bar: get_seats_count(bar)
@@ -52,20 +40,9 @@ def get_bar_size(bars, compare_func):
     return bar_size
 
 
-def print_line():
-    line = '=' * 120
-    print(line)
-
-
-def open_bars():
-    if len(sys.argv) > 1:
-        file_path = sys.argv[1]
-        bars = load_data(file_path)
-    else:
-        site = 'https://devman.org/media/filer_public/95/74/957441dc-78df-4c99-83b2-e93dfd13c2fa/bars.json'
-        bars = download_data(site)
-    return bars
-
+def print_delimiter():
+    delimiter = '=' * 80
+    print(delimiter)
 
 
 def get_user_coordinates():
@@ -74,34 +51,30 @@ def get_user_coordinates():
     return coordinates
 
 
-def decorator_for_exceptions(func):
+def main():
+        bars = load_data(sys.argv[1]).get('features')
+        coordinates = get_user_coordinates()
+        selected_bars = {
+            'Ближайший бар': get_closest_bar(bars, coordinates),
+            'Самый большой бар': get_extremum_seats_count(bars, max),
+            'Самый маленький бар': get_extremum_seats_count(bars, min)
+        }
+        for title, bar in selected_bars.items():
+            print_delimiter()
+            print('{} - «{}» находится по адресу {} и там {} мест'.format(
+                title, get_name(bar), get_address(bar), get_seats_count(bar)
+            ))
+
+
+if __name__ == '__main__':
     try:
-        func()
+        main()
     except json.decoder.JSONDecodeError:
         print('Битый JSON файл')
-    except requests.exceptions.ConnectionError:
-        print('Отсутствует соединение с интернетом')
     except ValueError:
         print('Некоректно введены координаты')
     except FileNotFoundError:
         print('Некоректно указан путь к файлу')
+    except IndexError:
+        print('Не указан путь к файлу')
 
-
-@decorator_for_exceptions
-def main():
-    bars = open_bars().get('features')
-    coordinates = get_user_coordinates()
-    selected_bars = {
-        'Ближайший бар': get_closest_bar(bars, coordinates),
-        'Самый большой бар': get_bar_size(bars, max),
-        'Самый маленький бар': get_bar_size(bars, min)
-    }
-    for title, bar in selected_bars.items():
-        print_line()
-        print('{} - «{}» находится по адресу {} и там {} мест'.format(
-            title, get_name(bar), get_address(bar), get_seats_count(bar)
-        ))
-
-
-if __name__ == '__main__':
-    main()
