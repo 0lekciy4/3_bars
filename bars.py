@@ -52,26 +52,26 @@ def get_user_coordinates():
 
 
 def main():
-    bars = load_data(sys.argv[1]).get('features')
-    coordinates = get_user_coordinates()
-    selected_bars = {
-        'Ближайший бар': get_closest_bar(bars, coordinates),
-        'Самый большой бар': get_extremum_seats_count(bars, max),
-        'Самый маленький бар': get_extremum_seats_count(bars, min)
-    }
-    for title, bar in selected_bars.items():
-        print_delimiter()
-        print('{} - «{}» находится по адресу {} и там {} мест'.format(
-            title, get_name(bar), get_address(bar), get_seats_count(bar)
-        ))
-
-
-if __name__ == '__main__':
     try:
-        main()
+        bars = load_data(sys.argv[1]).get('features')
+        coordinates = get_user_coordinates()
+        selected_bars = {
+            'Ближайший бар': get_closest_bar(bars, coordinates),
+            'Самый большой бар': get_extremum_seats_count(bars, max),
+            'Самый маленький бар': get_extremum_seats_count(bars, min)
+        }
+        for title, bar in selected_bars.items():
+            print_delimiter()
+            print('{} - «{}» находится по адресу {} и там {} мест'.format(
+                title, get_name(bar), get_address(bar), get_seats_count(bar)
+            ))
     except json.decoder.JSONDecodeError:
         print('Битый JSON файл')
     except ValueError:
         print('Некоректно введены координаты')
     except (FileNotFoundError, IndexError):
         print('Некоректно указан путь к файлу')
+
+
+if __name__ == '__main__':
+    main()
