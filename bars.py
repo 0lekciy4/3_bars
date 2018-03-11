@@ -10,19 +10,19 @@ def load_data(file_path):
 
 
 def get_coordinates(bar):
-    return bar.get('geometry').get('coordinates')
+    return bar['geometry']['coordinates']
 
 
 def get_name(bar):
-    return bar.get('properties').get('Attributes').get('Name')
+    return bar['properties']['Attributes']['Name']
 
 
 def get_address(bar):
-    return bar.get('properties').get('Attributes').get('Address')
+    return bar['properties']['Attributes']['Address']
 
 
 def get_seats_count(bar):
-    return bar.get('properties').get('Attributes').get('SeatsCount')
+    return bar['properties']['Attributes']['SeatsCount']
 
 
 def get_closest_bar(bars, my_coord):
@@ -53,7 +53,7 @@ def get_user_coordinates():
 
 def main():
     try:
-        bars = load_data(sys.argv[1]).get('features')
+        bars = load_data(sys.argv[1])['features']
         coordinates = get_user_coordinates()
         selected_bars = {
             'Ближайший бар': get_closest_bar(bars, coordinates),
